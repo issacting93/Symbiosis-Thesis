@@ -1,0 +1,3 @@
+# Data vs Stories
+
+We use stories and analogy to give meaning to the patterns that we are observing in the real world. We draw parallels between nature and our own experiences, and we use parables as a way of understanding ethics and morality. Stories is one of the oldest tools humans have to communicate important ideas. Stories shape our identity, stories shape our culture, the way we think about ourselves and who we are is through the meaning provided in stories. Symbiosis Design looks at data to tell a story about the nature of our relationship with technology and our relationships with one another. The data grounds us in reality, the stories construct the meaning.

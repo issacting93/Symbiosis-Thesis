@@ -1,0 +1,298 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Roots of UX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;300;400;600&display=swap">
+<style>
+/* Layout: departure-board lineage map. Black ground, hairline rules, one mono face; six lanes on one time axis. Single dark look by choice. */
+:root{
+  --bg:#000; --panel:#000; --ink:#f2f2f0; --ink-2:#8d8d8a; --ink-3:#555553; --rule:#262626; --band:#070707;
+  --psy:#b7adff; --eng:#7fd9c4; --des:#e8bd78; --soc:#f29dba; --cmp:#8dbaf6; --ui:#cfe07e; --ux:#ffffff;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:13px;line-height:1.55;padding-inline:clamp(16px,4vw,48px);padding-block:36px 56px;font-variant-numeric:tabular-nums;font-feature-settings:"zero" 1}
+.wrap{max-width:1280px;margin:0 auto;display:grid;gap:28px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;border-bottom:1px solid var(--rule);padding-bottom:18px}
+h1{font-weight:300;font-size:clamp(34px,6vw,72px);line-height:.95;margin:0;letter-spacing:-.03em;text-transform:uppercase}
+.meta{color:var(--ink-2);font-size:12px;text-align:right}
+.meta b{color:var(--ink);font-weight:600}
+.lbl{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3)}
+button{font:inherit;cursor:pointer;color:inherit}
+.chips{display:flex;flex-wrap:wrap;gap:4px 20px}
+.chip{background:none;border:0;padding:4px 0;font-size:12px;color:var(--ink-3);display:inline-flex;gap:8px;align-items:center;border-bottom:1px solid transparent}
+.chip .dot{width:7px;height:7px}
+.chip:hover{color:var(--ink-2)}
+.chip[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.chip:focus-visible,.node:focus-visible,.thread:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
+.map{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);overflow-x:auto}
+svg{display:block}
+.node{cursor:pointer}
+.node text{font-family:var(--mono);font-size:12px;fill:var(--ink)}
+.node .yr{font-size:10px;fill:var(--ink-3)}
+.node:hover text{fill:#fff}
+.edge{fill:none;stroke-width:2;transition:opacity .15s,stroke-width .15s}
+.dim{opacity:.12}
+.edge.on{stroke-width:2;opacity:1}
+.axis text{font-family:var(--mono);font-size:10px;fill:var(--ink-3)}
+.lane-name{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.below{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:40px}
+@media (max-width:760px){.below{grid-template-columns:1fr}}
+.detail{min-height:200px;display:grid;gap:10px;align-content:start}
+.big{font-weight:200;font-size:clamp(56px,9vw,112px);line-height:.9;letter-spacing:-.04em}
+.detail h2{font-weight:600;font-size:15px;margin:0;text-transform:uppercase;letter-spacing:.02em}
+.detail p{margin:0;max-width:62ch;color:var(--ink-2)}
+.rel{display:grid;grid-template-columns:9ch minmax(0,1fr);gap:4px 12px;font-size:12px;border-top:1px solid var(--rule);padding-top:10px}
+.rel a{color:var(--ink);cursor:pointer;text-decoration:none;border-bottom:1px solid var(--ink-3)}
+.rel a:hover{border-bottom-color:var(--ink)}
+.threads{display:grid;align-content:start}
+.thread{text-align:left;background:none;border:0;border-top:1px solid var(--rule);padding:12px 0;display:flex;justify-content:space-between;gap:12px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.thread:last-child{border-bottom:1px solid var(--rule)}
+.thread span{font-weight:400;color:var(--ink-3)}
+.thread:hover,.thread[aria-pressed="true"]{color:var(--ink)}
+.thread[aria-pressed="true"] span{color:var(--ink)}
+.views{display:flex;gap:16px}
+body.v-list .map, body.v-list .below{display:none}
+body.v-map .vt{display:none}
+.vt{display:grid;gap:18px}
+.tbar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.tbar::-webkit-scrollbar{display:none}
+.tchip{flex:none;background:none;border:1px solid var(--rule);padding:6px 10px;font-size:12px;color:var(--ink-2);white-space:nowrap}
+.tchip[aria-pressed="true"]{border-color:var(--ink);color:var(--ink)}
+.vlist{position:relative;display:grid}
+.vlist::before{content:"";position:absolute;left:calc(5ch + 15px);top:0;bottom:0;width:1px;background:var(--rule)}
+.dec{display:grid;grid-template-columns:5ch 30px minmax(0,1fr);align-items:end;padding:22px 0 8px}
+.dec b{grid-column:3;font-weight:200;font-size:44px;line-height:.9;letter-spacing:-.04em;color:var(--ink)}
+.row{display:grid;grid-template-columns:5ch 30px minmax(0,1fr);text-align:left;background:none;border:0;padding:0;width:100%;transition:opacity .15s}
+.row .y{font-size:12px;color:var(--ink-3);padding-top:13px}
+.row .mk{display:flex;justify-content:center;padding-top:17px}
+.row .mk i{width:9px;height:9px;display:block;position:relative;z-index:1;outline:3px solid var(--bg)}
+.row .c{border-top:1px solid var(--rule);padding:11px 0 12px;display:grid;gap:2px;min-width:0}
+.row .t{font-size:14px;font-weight:600;color:var(--ink)}
+.row .l{font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.row .x{display:none;color:var(--ink-2);font-size:13px;padding-top:6px}
+.row .x .rel{margin-top:10px}
+.row.open .x{display:block}
+.row.open .t::after{content:" ↗"}
+.row.open .y{color:var(--ink)}
+.row.dim{opacity:.18}
+.row:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+.vbtn{background:none;border:0;padding:2px 0;font-size:12px;color:var(--ink-3);border-bottom:1px solid transparent}
+.vbtn[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Roots<br>of UX</h1>
+    <div class="meta"><b>1911 → 2023</b><br><span id="count"></span><div class="views" style="justify-content:flex-end;margin-top:8px"><button class="vbtn" data-v="map">Map</button><button class="vbtn" data-v="list">Timeline</button></div></div>
+  </header>
+
+  <div class="chips" id="chips"></div>
+
+  <section class="vt">
+    <div class="tbar" id="tbar"></div>
+    <div class="vlist" id="vlist"></div>
+  </section>
+
+  <div class="map" id="map"><svg id="svg" role="img" aria-label="Swimlane timeline of the disciplines that shaped UX"></svg></div>
+
+  <div class="below">
+    <section class="detail" id="detail" aria-live="polite"></section>
+    <section class="threads">
+      <span class="lbl" style="margin-bottom:8px">Threads</span>
+      <div id="threads"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const LANES=[["psy","Psychology"],["eng","Human factors"],["des","Design"],["soc","Social science"],["cmp","Computing"],["ui","Interfaces"],["ux","UX practice"]];
+const N=[
+["taylor","eng",1911,"Scientific management","Taylor and the Gilbreths measure work as motion and time.",["hf"]],
+["gestalt","psy",1912,"Gestalt","Perception organizes wholes: proximity, similarity, closure. The grammar of layout.",["swiss","vid"]],
+["bauhaus","des",1919,"Bauhaus","Form follows function; art, craft and industry unified.",["ulm","swiss"]],
+["vyg","soc",1930,"Vygotsky","Zone of Proximal Development: the gap between solo ability and guided potential. Scaffolding, inner speech, and cultural tools (language, writing, diagrams) as mediators of cognition. Learning is social before it is individual — higher mental functions originate in interaction, then internalize. Returns as activity theory in HCI. Foundational question for AI: does it scaffold (temporary, fades as capability grows) or substitute (blocks internalization)?",["actth"]],
+["skinner","psy",1938,"Behaviorism","Behavior shaped by reinforcement. Returns through persuasive tech.",["fogg"]],
+["hf","eng",1947,"Human factors","WWII cockpits reframe pilot error as design error.",["fitts","dreyfuss","ucd"]],
+["cyber","eng",1948,"Cybernetics","Wiener's feedback and Shannon's information theory.",["cogrev","engel"]],
+["ulm","des",1953,"Ulm School","Systematic design; Dieter Rams at Braun.",["swiss","dsys"]],
+["fitts","eng",1954,"Fitts' law","Models of pointing and choice time. Still sizes targets and menus.",["goms","touch"]],
+["dreyfuss","des",1955,"Dreyfuss","Designing for People brings anthropometrics to industrial design.",["ucd"]],
+["cogrev","psy",1956,"Cognitive revolution","Miller's 7±2; the mind as information processor.",["cogpsy","goms"]],
+["swiss","des",1957,"Swiss style","Grids, sans-serif type, objective hierarchy.",["vid"]],
+["design-m","des",1962,"Design methods","Design as a discipline; Simon's Sciences of the Artificial (1969).",["dthink"]],
+["engel","ui",1963,"Sketchpad","Sutherland's pen interface; Engelbart's 1968 demo.",["parc"]],
+["gibson","psy",1966,"Affordances","Gibson: action possibilities in the environment, perceived or not.",["norman"]],
+["cogpsy","psy",1967,"Cognitive psychology","Neisser: attention, memory, mental models.",["norman","goms"]],
+["parc","ui",1973,"Xerox Alto","Windows, icons, menus, pointer. The GUI is born.",["dm","mac"]],
+["pd","soc",1975,"Participatory design","Scandinavian workers co-design their tools.",["actth","ucd"]],
+["alex","des",1977,"Pattern language","Alexander's architecture patterns, later borrowed by software and UI.",["dsys"]],
+["goms","cmp",1983,"GOMS · CHI","Card, Moran and Newell model interaction; CHI is founded.",["heur"]],
+["dm","cmp",1983,"Direct manipulation","Shneiderman: visible objects, reversible actions.",["mac"]],
+["mac","ui",1984,"Macintosh","The GUI goes mass market with interface guidelines.",["vid","touch"]],
+["ucd","psy",1986,"User-centered design","Norman and Draper: start from users, not technology.",["norman","uxterm"]],
+["suchman","soc",1987,"Situated action","Suchman: people improvise in context. Ethnography enters design.",["ci","third"]],
+["norman","psy",1988,"Everyday Things","Norman turns affordance into perceived affordance; adds mappings, feedback, gulfs.",["uxterm","emo"]],
+["heur","cmp",1990,"Usability heuristics","Nielsen and Molich; discount usability testing.",["uxterm","lean"]],
+["actth","soc",1991,"Activity theory","Bødker brings Vygotsky and Leontiev into HCI.",["third"]],
+["uxterm","ux",1993,"“User experience”","Norman's Apple title names the practice, with UI inside it.",["garrett","persona","split"]],
+["vid","des",1995,"Visual interface","Mullet and Sano apply grids and Gestalt to screens.",["dsys","split"]],
+["fogg","psy",1997,"Persuasive tech","Fogg's captology: computers as persuaders.",["nudge","dark"]],
+["ci","soc",1998,"Contextual design","Beyer and Holtzblatt make field research a method.",["garrett","persona"]],
+["ia","des",1998,"Info architecture","Wurman's term, made a web practice by Rosenfeld and Morville.",["garrett","split"]],
+["persona","ux",1999,"Personas","Cooper turns research into archetypal users.",["dthink"]],
+["garrett","ux",2002,"Elements of UX","Garrett's five planes, strategy to surface.",["dsys"]],
+["emo","psy",2004,"Emotional design","Visceral, behavioral, reflective: aesthetics affects use.",["third"]],
+["dthink","des",2005,"Design thinking","IDEO and the d.school make design a business method.",["lean"]],
+["third","soc",2006,"Third wave","Bødker: from efficiency to experience, culture and values.",["vsd"]],
+["touch","ui",2007,"Mobile · touch","Multitouch reshapes gestures, targets and context.",["flat","dsys"]],
+["nudge","soc",2008,"Nudge","Choice architecture: defaults and framing as design tools.",["dark"]],
+["dark","ux",2010,"Dark patterns","Brignull names manipulative design.",["vsd"]],
+["lean","ux",2011,"Lean UX","Research and design in build-measure-learn loops.",["dsys"]],
+["dsys","ux",2013,"Design systems","Atomic Design, Material: systematic design at product scale.",["hai"]],
+["vsd","soc",2017,"Humane tech","Value sensitive design and well-being in scope.",["hai"]],
+["hai","cmp",2019,"Human–AI","Amershi et al.'s guidelines; design shifts to intent and trust.",["genui"]],
+["star","ui",1981,"Xerox Star","First commercial GUI; the desktop metaphor.",["mac"]],
+["ixd","des",1984,"Interaction design","Moggridge and Verplank name the bridge between look and behavior.",["uxterm"]],
+["win","ui",1990,"Windows 3.0","GUIs become the PC default.",["web"]],
+["web","ui",1993,"Mosaic","The graphical web; the page becomes an interface.",["css"]],
+["css","ui",1996,"CSS","Styling separates from structure.",["web2"]],
+["split","ux",2000,"UX | UI split","Web teams divide research and IA from visual design.",["slash"]],
+["web2","ui",2004,"Web 2.0","AJAX and rich web apps.",["flat"]],
+["sketch","ui",2010,"Sketch","Wireframes and visuals in one tool.",["slash"]],
+["flat","ui",2010,"Flat design","Metro (2010), then iOS 7 (2013).",["slash","dsys"]],
+["slash","ux",2012,"“UI/UX” designer","Startups and bootcamps rejoin the roles.",["prod"]],
+["voice","ui",2014,"Voice UI","Alexa; conversation as interface.",["hai"]],
+["figma","ui",2016,"Figma","Collaborative design in the browser.",["prod"]],
+["prod","ux",2016,"Product designer","The slash gives way to one title.",["genui"]],
+["genui","ui",2023,"Generative UI","Interfaces composed at runtime by models.",[]]
+];
+const THREADS=[
+ ["Affordance","1966→2004",["gibson","cogpsy","norman","uxterm","emo"]],
+ ["Design systems","1919→2013",["bauhaus","ulm","swiss","alex","vid","garrett","dsys"]],
+ ["Social turn","1930→2017",["vyg","pd","suchman","actth","ci","third","vsd"]],
+ ["Behaviorism","1938→2017",["skinner","fogg","nudge","dark","vsd"]],
+ ["UI ↔ UX","1981→2016",["star","mac","ixd","uxterm","ia","vid","split","flat","sketch","slash","figma","prod"]],
+ ["Human factors","1911→1990",["taylor","hf","fitts","cogrev","goms","heur"]]
+];
+const byId=Object.fromEntries(N.map(n=>[n[0],n]));
+const parents={};N.forEach(n=>n[5].forEach(c=>(parents[c]=parents[c]||[]).push(n[0])));
+const laneName=Object.fromEntries(LANES);
+document.getElementById('count').textContent=`${LANES.length} lanes · ${N.length} ideas`;
+
+const Y0=1905,Y1=2026,PX=11.5,LEFT=24,TOP=44,PADR=150,ROW=40;
+const W=LEFT+(Y1-Y0)*PX+PADR;
+const xOf=y=>LEFT+(y-Y0)*PX;
+const labW=t=>t.length*7.3+22;
+const pos={};let yCur=TOP;const bands=[];
+LANES.forEach(([k])=>{
+  const items=N.filter(n=>n[1]===k).sort((a,b)=>a[2]-b[2]);const ends=[];
+  items.forEach(n=>{const x=xOf(n[2]);let r=ends.findIndex(e=>x>e+10);if(r<0){r=ends.length;ends.push(0)}ends[r]=x+labW(n[3]);pos[n[0]]={x,r}});
+  const h=30+ends.length*ROW+8;
+  items.forEach(n=>pos[n[0]].y=yCur+30+pos[n[0]].r*ROW+12);
+  bands.push([k,yCur,h]);yCur+=h;
+});
+const H=yCur+8;
+const svg=document.getElementById('svg');
+svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width',W);svg.setAttribute('height',H);
+const NS='http://www.w3.org/2000/svg';
+const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e};
+
+bands.forEach(([k,y,h],i)=>{
+  el('rect',{x:0,y,width:W,height:h,fill:i%2?'var(--band)':'var(--bg)'});
+  if(i)el('line',{x1:0,x2:W,y1:y,y2:y,stroke:'var(--rule)'});
+  const t=el('text',{x:LEFT,y:y+20,class:'lane-name',fill:`var(--${k})`});t.textContent=laneName[k];
+});
+const ax=el('g',{class:'axis'});
+for(let d=1910;d<=2020;d+=10){
+  el('line',{x1:xOf(d),x2:xOf(d),y1:TOP-6,y2:H,stroke:'var(--rule)'},ax);
+  const t=el('text',{x:xOf(d)+4,y:TOP-14},ax);t.textContent=d;
+}
+const eg=el('g',{});const edges=[];
+N.forEach(n=>n[5].forEach(c=>{
+  const a=pos[n[0]],b=pos[c];const dx=Math.max(40,(b.x-a.x)*.5);
+  const p=el('path',{d:`M${a.x} ${a.y} C${a.x+dx} ${a.y},${b.x-dx} ${b.y},${b.x} ${b.y}`,class:'edge',stroke:`var(--${n[1]})`,opacity:.3},eg);
+  edges.push([n[0],c,p]);
+}));
+const ng=el('g',{});const nodes={};
+N.forEach(n=>{
+  const {x,y}=pos[n[0]];const g=el('g',{class:'node',tabindex:0,role:'button','aria-label':`${n[3]}, ${n[2]}`},ng);
+  const w=labW(n[3]);
+  el('rect',{x:x-4,y:y-11,width:w,height:22,fill:'var(--bg)',stroke:`var(--${n[1]})`,'stroke-width':.6,'stroke-opacity':.55},g);
+  el('rect',{x:x,y:y-3,width:6,height:6,fill:`var(--${n[1]})`},g);
+  const t=el('text',{x:x+13,y:y+4},g);t.textContent=n[3];
+  const yr=el('text',{x:x-4,y:y+23,class:'yr'},g);yr.textContent=n[2];
+  g.addEventListener('click',()=>select(n[0]));
+  g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(n[0])}});
+  nodes[n[0]]=g;
+});
+
+let filt=null,sel=null,thread=null;
+function closure(id,map){const s=new Set();const st=[id];while(st.length){const c=st.pop();(map(c)||[]).forEach(x=>{if(!s.has(x)){s.add(x);st.push(x)}})}return s}
+function apply(){
+  let active=null,onE=null;
+  if(sel){const up=closure(sel,c=>parents[c]),down=closure(sel,c=>byId[c][5]);active=new Set([sel,...up,...down]);
+    const U=new Set([sel,...up]),D=new Set([sel,...down]);onE=e=>(U.has(e[0])&&U.has(e[1]))||(D.has(e[0])&&D.has(e[1]))}
+  else if(thread){active=new Set(thread);onE=e=>active.has(e[0])&&active.has(e[1])}
+  N.forEach(n=>{const on=active?active.has(n[0]):(!filt||n[1]===filt);nodes[n[0]].classList.toggle('dim',!on);
+    const r=nodes[n[0]].querySelector('rect');r.setAttribute('stroke-width',n[0]===sel?1.4:.6);r.setAttribute('stroke-opacity',n[0]===sel?1:.55)});
+  edges.forEach(e=>{const on=onE?onE(e):(!filt||byId[e[0]][1]===filt||byId[e[1]][1]===filt);e[2].classList.toggle('on',!!(onE&&on));e[2].classList.toggle('dim',!on)});
+  document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String((c.dataset.k||null)===filt)));
+  document.querySelectorAll('.thread').forEach((b,i)=>b.setAttribute('aria-pressed',String(thread===THREADS[i][2])));
+  renderDetail();
+}
+const links=ids=>ids&&ids.length?ids.map(i=>`<a data-go="${i}">${byId[i][3]}</a>`).join(' · '):'<span style="color:var(--ink-3)">—</span>';
+function renderDetail(){
+  const d=document.getElementById('detail');
+  if(sel){const n=byId[sel];
+    d.innerHTML=`<span class="lbl" style="color:var(--${n[1]})">${laneName[n[1]]} ↗</span><div class="big">${n[2]}</div><h2>${n[3]}</h2><p>${n[4]}</p><div class="rel"><span class="lbl">From</span><span>${links(parents[sel])}</span><span class="lbl">Into</span><span>${links(n[5])}</span></div>`;
+  }else if(thread){const t=THREADS.find(t=>t[2]===thread);
+    d.innerHTML=`<span class="lbl">Thread ↗</span><div class="big">${t[1].replace('→','–')}</div><h2>${t[0]}</h2><div class="rel"><span class="lbl">Path</span><span>${links(t[2].slice().sort((a,b)=>byId[a][2]-byId[b][2]))}</span></div>`;
+  }else{
+    d.innerHTML=`<span class="lbl">Select a node</span><div class="big">1993</div><h2>“User experience” is named</h2><p>Five strands run separately until the 1980s, then braid into HCI. Click a node to trace its lineage.</p>`;
+  }
+  d.querySelectorAll('[data-go]').forEach(a=>a.onclick=()=>{select(a.dataset.go);scrollTo(a.dataset.go)});
+}
+function scrollTo(id){const m=document.getElementById('map');const x=pos[id].x;if(x<m.scrollLeft+40||x>m.scrollLeft+m.clientWidth-160)m.scrollTo({left:Math.max(0,x-m.clientWidth/3),behavior:'smooth'})}
+function select(id){thread=null;sel=sel===id?null:id;apply()}
+const chips=document.getElementById('chips');
+[[null,'All'],...LANES].forEach(([k,l])=>{const b=document.createElement('button');b.className='chip';if(k)b.dataset.k=k;b.innerHTML=(k?`<span class="dot" style="background:var(--${k})"></span>`:'')+l;b.onclick=()=>{filt=filt===k?null:k;sel=null;thread=null;apply()};chips.appendChild(b)});
+const th=document.getElementById('threads');
+THREADS.forEach(t=>{const b=document.createElement('button');b.className='thread';b.innerHTML=`${t[0]} ↗<span>${t[1]}</span>`;b.onclick=()=>{sel=null;thread=thread===t[2]?null:t[2];apply();if(thread)scrollTo(t[2][0])};th.appendChild(b)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){sel=null;thread=null;filt=null;apply()}});
+
+/* vertical timeline */
+const tbar=document.getElementById('tbar'),vlist=document.getElementById('vlist'),rows={};
+THREADS.forEach(t=>{const b=document.createElement('button');b.className='tchip';b.textContent=t[0]+' ↗';b.dataset.t=t[0];b.onclick=()=>{sel=null;thread=thread===t[2]?null:t[2];apply()};tbar.appendChild(b)});
+let lastDec=null;
+N.slice().sort((a,b)=>a[2]-b[2]).forEach(n=>{
+  const dec=Math.floor(n[2]/10)*10;
+  if(dec!==lastDec){const d=document.createElement('div');d.className='dec';d.innerHTML=`<b>${dec}s</b>`;vlist.appendChild(d);lastDec=dec}
+  const r=document.createElement('button');r.className='row';r.setAttribute('aria-expanded','false');
+  r.innerHTML=`<span class="y">${n[2]}</span><span class="mk"><i style="background:var(--${n[1]})"></i></span><span class="c"><span class="t">${n[3]}</span><span class="l" style="color:var(--${n[1]})">${laneName[n[1]]}</span><span class="x"></span></span>`;
+  r.onclick=e=>{if(e.target.closest('[data-go]'))return;select(n[0])};
+  vlist.appendChild(r);rows[n[0]]=r;
+});
+function applyList(){
+  let active=null;
+  if(sel)active=new Set([sel,...closure(sel,c=>parents[c]),...closure(sel,c=>byId[c][5])]);
+  else if(thread)active=new Set(thread);
+  N.forEach(n=>{const r=rows[n[0]];const on=active?active.has(n[0]):(!filt||n[1]===filt);r.classList.toggle('dim',!on);
+    const open=n[0]===sel;r.classList.toggle('open',open);r.setAttribute('aria-expanded',String(open));
+    r.querySelector('.x').innerHTML=open?`${n[4]}<div class="rel"><span class="lbl">From</span><span>${links(parents[n[0]])}</span><span class="lbl">Into</span><span>${links(n[5])}</span></div>`:'';
+    if(open)r.querySelectorAll('[data-go]').forEach(a=>a.onclick=ev=>{ev.stopPropagation();select(a.dataset.go);rows[a.dataset.go].scrollIntoView({block:'center',behavior:'smooth'})});
+  });
+  tbar.querySelectorAll('.tchip').forEach((b,i)=>b.setAttribute('aria-pressed',String(thread===THREADS[i][2])));
+}
+const _apply=apply;apply=function(){_apply();applyList()};
+
+/* view switch: timeline by default on phones */
+function setView(v){document.body.className='v-'+v;document.querySelectorAll('.vbtn').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)));try{localStorage.setItem('ux-view',v)}catch(e){}}
+document.querySelectorAll('.vbtn').forEach(b=>b.onclick=()=>setView(b.dataset.v));
+let saved=null;try{saved=localStorage.getItem('ux-view')}catch(e){}
+setView(saved||(matchMedia('(max-width:760px)').matches?'list':'map'));
+apply();
+</script>
+
+</body></html>

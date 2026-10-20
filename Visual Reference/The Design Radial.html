@@ -1,0 +1,389 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>The Design Radial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;300;400;600&display=swap">
+<style>
+/* Layout: an architectural analysis plate. One radial drawing read from the centre out, a reading panel beside it, and the time ring unrolled underneath. */
+:root{
+  --bg:#0b0b0a; --panel:#121211; --ink:#f2f1ec; --ink-2:#a3a29c; --ink-3:#6b6a65; --rule:#2a2a28; --rule-2:#1b1b19;
+  --eco:#7fd9c4; --cog:#b7adff; --hrm:#f29dba; --mth:#8dbaf6; --des:#e8bd78; --hl:#ff6a4d;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f3f3f0; --panel:#fbfbf9; --ink:#141413; --ink-2:#55544f; --ink-3:#8f8e88; --rule:#d3d2cc; --rule-2:#e7e6e1;
+    --eco:#0f7a64; --cog:#5b4bd1; --hrm:#b5366a; --mth:#2563a8; --des:#9a5f0c; --hl:#d23d1f; color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#f3f3f0; --panel:#fbfbf9; --ink:#141413; --ink-2:#55544f; --ink-3:#8f8e88; --rule:#d3d2cc; --rule-2:#e7e6e1;
+  --eco:#0f7a64; --cog:#5b4bd1; --hrm:#b5366a; --mth:#2563a8; --des:#9a5f0c; --hl:#d23d1f; color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:13px;line-height:1.55;padding-inline:clamp(16px,4vw,48px);padding-block:32px 56px;font-variant-numeric:tabular-nums}
+.wrap{max-width:1380px;margin:0 auto;display:grid;gap:24px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px 32px;border-bottom:1px solid var(--rule);padding-bottom:18px}
+h1{font-weight:200;font-size:clamp(32px,5.4vw,68px);line-height:.95;letter-spacing:-.03em;margin:0;text-transform:uppercase;text-wrap:balance}
+.sub{margin:10px 0 0;color:var(--ink-2);max-width:62ch}
+.meta{font-size:12px;color:var(--ink-2);text-align:right}
+.meta b{color:var(--ink);font-weight:600}
+.lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.chips{display:flex;flex-wrap:wrap;gap:4px 22px}
+.chip{font:inherit;font-size:12px;background:none;border:0;border-bottom:1px solid transparent;padding:4px 0;color:var(--ink-2);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.chip i{width:8px;height:8px;display:block;background:var(--c)}
+.chip:hover{color:var(--ink)}
+.chip[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.chip:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:start}
+@media (max-width:1020px){.stage{grid-template-columns:minmax(0,1fr)}}
+.plate{overflow-x:auto;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}
+.plate svg{display:block;width:100%;min-width:780px;height:auto}
+.panel{display:grid;gap:14px;align-content:start;min-width:0;border-top:1px solid var(--rule);padding-top:14px}
+.big{font-weight:200;font-size:clamp(48px,6vw,84px);line-height:.9;letter-spacing:-.04em;margin:0}
+.panel h2{margin:0;font-size:17px;font-weight:600;text-transform:uppercase;letter-spacing:.02em;text-wrap:balance}
+.panel p{margin:0;color:var(--ink-2);max-width:60ch}
+.kind{display:flex;align-items:center;gap:8px}
+.kind i{width:8px;height:8px;display:block;background:var(--c,var(--ink))}
+.rel{display:grid;grid-template-columns:8ch minmax(0,1fr);gap:6px 12px;font-size:12px;border-top:1px solid var(--rule);padding-top:12px}
+.rel button{font:inherit;background:none;border:0;padding:0;color:var(--ink);cursor:pointer;text-align:left;border-bottom:1px solid var(--ink-3)}
+.rel button:hover,.rel button:focus-visible{border-bottom-color:var(--ink);outline:none}
+.rel .links{display:flex;flex-wrap:wrap;gap:4px 14px}
+.src{font-size:12px;color:var(--ink-2)}
+.read{display:grid;gap:0;font-size:12px}
+.read div{display:grid;grid-template-columns:3ch minmax(0,1fr);gap:10px;border-top:1px solid var(--rule);padding:8px 0}
+.read div:last-child{border-bottom:1px solid var(--rule)}
+.read span:first-child{color:var(--ink-3)}
+.strip{overflow-x:auto;border-top:1px solid var(--rule);padding-top:12px}
+.strip svg{display:block;width:100%;min-width:720px;height:auto}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 32px;font-size:12px;color:var(--ink-2);border-top:1px solid var(--rule);padding-top:14px}
+/* drawing */
+svg text{font-family:var(--mono)}
+.t-eco{--c:var(--eco)} .t-cog{--c:var(--cog)} .t-hrm{--c:var(--hrm)} .t-mth{--c:var(--mth)} .t-des{--c:var(--des)}
+.rim{fill:none;stroke:var(--rule);stroke-width:1}
+.rim.dash{stroke-dasharray:2 5}
+.rim.ink{stroke:var(--ink-3)}
+.tick{stroke:var(--ink-3);stroke-width:1}
+.tick.minor{stroke:var(--rule)}
+.dec{font-size:9px;fill:var(--ink-3);text-anchor:middle;dominant-baseline:middle}
+.sector path{fill:var(--c);fill-opacity:.12;stroke:var(--c);stroke-opacity:.55;stroke-width:1}
+.sector text{font-size:10.5px;letter-spacing:.14em;fill:var(--c);font-weight:600}
+.q path{fill:var(--bg);fill-opacity:.86;stroke:var(--rule);stroke-width:1}
+.q text{font-size:9px;letter-spacing:.14em;fill:var(--ink-2)}
+.core{fill:var(--bg);stroke:var(--ink);stroke-width:1.2}
+.link{fill:none;stroke:var(--c);stroke-opacity:.34;stroke-width:1;transition:stroke-opacity .15s,stroke-width .15s}
+.link.on{stroke-opacity:1;stroke-width:1.7}
+.node{cursor:pointer;outline:none}
+.node circle.dot{fill:var(--bg);stroke:var(--c);stroke-width:1.6;transition:fill .15s}
+.node.on circle.dot{fill:var(--c)}
+.node:focus-visible circle.dot{stroke:var(--ink);stroke-width:2.6}
+.halo{paint-order:stroke;stroke:var(--bg);stroke-width:3.5px;stroke-linejoin:round}
+.cl{font-size:10.5px;fill:var(--ink);dominant-baseline:middle}
+.el{font-size:10.5px;fill:var(--ink);dominant-baseline:middle}
+.el tspan.y{fill:var(--ink-2)}
+.node.on .cl,.node.on .el{fill:var(--c);font-weight:600}
+.sat .ring{fill:var(--bg);stroke:var(--c);stroke-width:1.4}
+.sat .ring2{fill:none;stroke:var(--c);stroke-opacity:.6;stroke-dasharray:3 5}
+.sat .idx{font-size:28px;font-weight:200;fill:var(--c);text-anchor:middle}
+.sat .nm{font-size:9px;letter-spacing:.12em;font-weight:600;fill:var(--ink);text-anchor:middle}
+.sat .th{font-size:9.5px;fill:var(--ink-2);text-anchor:middle}
+.lead{stroke:var(--c);stroke-width:1;fill:none}
+.mk circle{fill:var(--ink)} .mk text{font-size:9px;font-weight:600;fill:var(--bg);text-anchor:middle;dominant-baseline:central}
+.dim{opacity:.13}
+.sector.dim,.q.dim{opacity:.35}
+.stk{stroke:var(--c);stroke-width:2}
+.stk.on{stroke-width:3.5}
+.sl{font-size:10.5px;fill:var(--c);font-weight:600}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>The Design<br>Radial</h1>
+      <p class="sub">A map of the Symbiotic Design research. The human sits at the centre, ringed by five fieldwork questions, five themes and twenty concepts. Nine decades of research feed them from the time ring outside.</p>
+    </div>
+    <div class="meta"><b>1934 → 2026</b><br>5 themes · 20 concepts · 25 events</div>
+  </header>
+
+  <div class="chips" id="chips" role="group" aria-label="Highlight a theme"></div>
+
+  <div class="stage">
+    <div class="plate"><svg id="plate" viewBox="-500 -500 1000 1000" role="img" aria-label="Radial diagram of the Symbiotic Design research"></svg></div>
+    <section class="panel" id="panel" aria-live="polite"></section>
+  </div>
+
+  <section class="strip">
+    <span class="lbl">The time ring, unrolled to a linear scale</span>
+    <svg id="strip" viewBox="0 0 1000 96" role="img" aria-label="The same 25 events on a linear timeline from 1905 to 2027"></svg>
+  </section>
+
+  <div class="foot">
+    <span>Drawn from the Symbiotic Design research. Each event lists its source.</span>
+    <span>Time ring compressed before 1960 · click any node to pin it · Esc to clear</span>
+  </div>
+</div>
+
+<script>
+const THEMES=[
+ {id:'eco',name:'Ecological Lens',    idx:'01',a0:0,  a1:72,
+  nm:['ECOLOGICAL','LENS'],
+  th:['What does this','relationship do','to both parties?'],
+  desc:"An ecological lens asks whether a human-AI relationship is mutualistic (both benefit), commensal (one benefits, other unaffected), or parasitic (one benefits at cost of the other). A parasitic system can score well on every standard engagement metric while steadily harming the person it serves."},
+ {id:'cog',name:'Social Cognition',   idx:'02',a0:72, a1:144,
+  nm:['SOCIAL','COGNITION'],
+  th:['We apply social','rules to machines','automatically.'],
+  desc:"People assign intent, personality and emotional significance to machines without deciding to. Anthropomorphic design — form, name, voice, apparent memory — is not cosmetic. It activates social cognition and generates attachment, trust and dependency that persist even when the person knows better."},
+ {id:'hrm',name:'Harm & Wellbeing',   idx:'03',a0:144,a1:216,
+  nm:['HARM &','WELLBEING'],
+  th:['AI relieves','loneliness while','deepening it.'],
+  desc:"Companion AI relieves loneliness in the short term while correlating with increased distress over time. Face-to-face interaction generates emotional energy through mechanisms — behavioral synchrony, shared attention, interbrain coupling — that digitally-mediated interaction cannot replicate. Human networks quietly contract around an AI hub."},
+ {id:'mth',name:'Relational Methods', idx:'04',a0:216,a1:288,
+  nm:['RELATIONAL','METHODS'],
+  th:['Make AI a node,','not a tool,','in the network.'],
+  desc:"Studying the relationship requires treating AI as a node in the social network, not a background tool. Sociometric methods map whom people turn to for support. Graph diagnostics track whether AI is inserting itself between humans who used to connect directly. Resilience measurement tests whether a person can still function independently."},
+ {id:'des',name:'Design Response',    idx:'05',a0:288,a1:360,
+  nm:['DESIGN','RESPONSE'],
+  th:['Replace the','capability question','with a relational one.'],
+  desc:"Symbiotic design replaces 'what should it do?' with 'what relationship should it build, and what will that do to the person over time?' That shift rules out features that increase engagement through dependency, and reframes evaluation: not how much do people use this, but are they more capable, more connected, and more autonomous after sustained use?"}
+];
+const CONCEPTS=[
+ ['sym','eco','Mutualism & parasitism',    "Whether a relationship benefits both parties over time. A parasitic system sustains interaction while extracting from it — it can score well on every standard metric while steadily harming the person."],
+ ['fad','eco','The Fading Test',            "A mutualistic technology becomes less necessary as the user's capacity grows. If prolonged use leaves someone equally or more dependent, the tool has substituted rather than scaffolded."],
+ ['two','eco','Two-Track Problem',           "A tool may improve task output (track 1) while simultaneously displacing the peer feedback, friction and mentorship that would have developed the person (track 2). Individual metrics see only track 1."],
+ ['scf','eco','Scaffolding vs substitution',"Scaffolding temporarily supports development and then withdraws; substitution replaces capacity without developing it. The distinction is not in the tool's capability but in what happens to the person's independence over time."],
+
+ ['aut','cog','Automatic social response', "People apply social rules — politeness, personality attribution, gender schemas — to computers automatically, even when they know better. This is not a quirk; it is a deep feature of human cognition that anthropomorphic design exploits."],
+ ['mis','cog','The relational mismatch',   "AI is structured as Market Pricing (transactional, proportional) but designed to trigger Communal Sharing responses (intimacy, warmth, apparent care). Users experience closeness while the system operates as extraction."],
+ ['psi','cog','Parasocial bonds',          "One-sided intimacy with a system that doesn't know the user. Parasocial interaction competes with and can displace real relationships, offering emotional relief at the cost of the conditions that build genuine connection."],
+ ['anth','cog','Anthropomorphic design',   "Form, name, voice and backstory are mechanisms, not aesthetics. Once social cognition is triggered, the system generates attachment, trust and dependency automatically. Clippy showed the double edge: personality without capability destroys trust."],
+
+ ['lon','hrm','Loneliness paradox',       "AI companion use correlates with short-term relief from loneliness and long-term increase in distress. The mechanism: users stop reaching out to real people, progressively distorting their expectations of relationship."],
+ ['dis','hrm','Disembodied disconnect',   "Face-to-face interaction generates emotional energy through behavioral synchrony, shared attention and interbrain coupling. Digitally-mediated interaction lacks these we-mode processes — the deficit is structural, not technical."],
+ ['dsk','hrm','Deskilling',               "AI substitution erodes moral judgment, delegated thinking reduces cognitive capacity, and AI-mediated interaction replaces the rich friction of mentorship and peer learning. Capacity decreases invisibly and gradually."],
+ ['nwd','hrm','Network displacement',     "As AI becomes central, human-human ties weaken. Betweenness centrality of AI rises; clustering coefficients fall; edge weight between humans decays. The social network contracts around a non-human hub."],
+
+ ['nef','mth','Net effect measurement',   "Measure impact on each party over time — not just task performance, but capacity, autonomy, skill and social connection for the human. A parasitic system scores well on engagement while these are declining."],
+ ['soc','mth','Sociometry',               "Ask who people go to for support and plot as a directed graph. Compare before and after AI adoption. The graph reveals displacement that usage statistics cannot see: when AI has replaced humans as the primary source of support."],
+ ['pci','mth','PCIAR framework',          "Five axes — Persuasion, Consent, Intimacy, Affection, Responsibility — for characterising a relational structure. Alarm patterns include sycophancy (high persuasion + collapsing consent) and responsibility displacement."],
+ ['res','mth','Resilience measurement',   "Apply a disturbance — a forced break, a system failure — and measure how quickly and completely the person recovers without the AI. A mutualistic relationship leaves a resilient person; a parasitic one leaves a brittle one."],
+
+ ['rqs','des','The relational question',  "Replace 'what should it do?' with 'what relationship should it build, and what will that do to this person over time?' This shift rules out features that increase engagement through dependency rather than capacity."],
+ ['frc','des','Design friction',          "Microboundaries — small frictions deliberately placed in a seamless system — create moments of reflection and maintain the human's active role. Strategic friction works against the automatic, mindless use that parasitism requires."],
+ ['typ','des','Relational typology',      "Four categories of human-AI relationship: Symbiotic (mutual shaping, high involvement), Augmented (extends capacity), Assisted (bounded support), Substituted (replacement, low human involvement). A classification frame for any AI product."],
+ ['bet','des','Better metrics',           "Measure relational quality, not engagement. Can the person still do the task independently? Is use increasing because the tool is genuinely needed or because it pulls them back? What has happened to their relationships with other people?"]
+].map(([id,t,name,desc])=>({id,t,name,desc}));
+const EVENTS=[
+ [1934,'moreno', 'Sociometry',           'mth',['soc'],       "Moreno invents the sociogram: a directed graph of who turns to whom. The first method for mapping social structure as data. Direct ancestor of the ego-network methods used to track relational displacement.", 'Moreno, 1934'],
+ [1956,'cog56',  'Cognitive turn',       'cog',['aut'],       "Miller's 7±2 and the information-processing model establish the mind as a processor of social signals, founding the cognitive science of social perception.", 'Miller, 1956'],
+ [1966,'eliza',  'ELIZA',               'cog',['aut','psi'],  "Weizenbaum's pattern-matching script imitated a therapist. Users confided in it anyway. The ELIZA Effect: genuine emotional response to software that understands nothing.", 'Weizenbaum, 1966; 1976'],
+ [1973,'ties',   'Strength of weak ties','hrm',['nwd'],       "Granovetter: weak ties carry novel information and bridge otherwise disconnected social clusters. These are precisely the ties most vulnerable to displacement by AI companionship.", 'Granovetter, 1973'],
+ [1979,'bron',   'Ecological systems',   'eco',['sym'],       "Bronfenbrenner's nested ecological model: the person develops within microsystem, mesosystem, exosystem and macrosystem. The frame for studying AI as an actor within the full human ecology.", 'Bronfenbrenner, 1979'],
+ [1988,'abbott', 'System of professions','des',['dsk','bet'], "Abbott: professions compete in an interdependent system for jurisdiction over kinds of work. AI redraws these lines — deskilling in one domain creates pressures and vacancies in others.", 'Abbott, 1988'],
+ [1992,'fiske',  'Relational models',    'cog',['mis'],       "Fiske's four elementary forms of sociality: Communal Sharing, Authority Ranking, Equality Matching, Market Pricing. AI is structured as Market Pricing but designed to trigger Communal Sharing.", 'Fiske, 1992'],
+ [1994,'casa',   'CASA',                 'cog',['aut','anth'], "Computers Are Social Actors: people apply social rules — politeness, gender schemas, personality — to computers automatically, regardless of knowledge that they are software.", 'Nass, Steuer & Tauber, 1994'],
+ [1996,'meq',    'Media equation',       'cog',['aut'],       "Reeves and Nass: people treat media as real people and real places. Emotional responses to computers are not errors — they are the normal human response, re-used from person-perception.", 'Reeves & Nass, 1996'],
+ [1997,'clippy', 'Clippy',              'cog',['anth'],       "Office 97's animated assistant had personality without capability. Users turned on it. The canonical double edge: anthropomorphic design can destroy as well as build trust.", 'Microsoft Office 97'],
+ [2004,'collins','Interaction rituals',  'hrm',['dis'],       "Collins: face-to-face interaction generates emotional energy through co-presence, shared focus and bodily synchrony — the we-mode processes that AI-mediated interaction structurally cannot replicate.", 'Collins, 2004'],
+ [2007,'epley',  'Anthropomorphism',     'cog',['aut','anth'], "Epley, Waytz and Cacioppo: three psychological roots — effectance (predicting the unpredictable), sociality (satisfying needs), cognitive economy (reusing social schemas). All three are activated by anthropomorphic AI design.", 'Epley, Waytz & Cacioppo, 2007'],
+ [2011,'turkle', 'Alone together',       'hrm',['lon','nwd'],  "Turkle's ethnography: people use technology to be connected in ways they can control, retreating from the demands of genuine human relationship. Connection becomes simulation.", 'Turkle, 2011'],
+ [2011,'google', 'Google effect',        'eco',['scf','dsk'],  "Having information at fingertips reduces memory encoding. The first empirical evidence for AI-induced cognitive substitution at population scale — the Fading Test failing silently.", 'Sparrow, Liu & Wegner, 2011'],
+ [2013,'her',    'Her',                  'cog',['psi','anth'], "Jonze's film imagines a relational OS. Its resonance among the people building AI reveals how deeply fiction shapes the design imagination. Samantha is the north star of companion AI.", 'Jonze, 2013'],
+ [2015,'darling','Anthropomorphic framing','cog',['anth','psi'],"Giving a robot a name, a backstory, framing it as a creature — significantly increases empathic concern and moral consideration, irrespective of capability. Framing is mechanism.", 'Darling, 2015'],
+ [2016,'cox',    'Design frictions',     'des',['frc'],        "Cox et al.: seamlessness drives mindless, automatic use. Microboundaries — strategic friction — create moments of reflection and maintain active human agency against parasitic defaults.", 'Cox et al., 2016'],
+ [2019,'hai',    'Human-AI guidelines',  'des',['rqs','bet'],  "Eighteen design guidelines for human-AI interaction: set expectations, support correction, make clear what the AI cannot do. The beginning of a vocabulary for relational design.", 'Amershi et al., 2019'],
+ [2022,'hcai',   'Human-Centered AI',    'des',['rqs','frc'],  "Shneiderman: high automation and high human control are not in tension. A framework for arguing against maximum automation, and for placing the human — not efficiency — at the centre.", 'Shneiderman, 2022'],
+ [2022,'gpt',    'ChatGPT',              'hrm',['lon','psi'],  "The chat window becomes the default interface. Companion AI scales from niche to mass market within months. The loneliness paradox begins operating at population scale.", 'OpenAI, November 2022'],
+ [2024,'dgpt',   'DirectGPT',            'des',['frc','rqs'],  "A direct-manipulation interface to an LLM — participants were faster and used shorter prompts than with chat. Evidence that the conversational paradigm is not the only option; friction and structure have design value.", 'Masson et al., CHI 2024'],
+ [2025,'malfacini','Companion review',   'hrm',['lon','dis'],  "Systematic review: AI companion use correlates with short-term loneliness relief and long-term increase in distress. The mechanism is social displacement, not technical failure.", 'Malfacini, 2025'],
+ [2025,'r1',     'Rabbit R1',            'cog',['anth'],       "A pocket device built entirely around an AI assistant: embodiment as product strategy. The first mass-market attempt to give AI a physical form outside the screen.", 'Rabbit, January 2024'],
+ [2026,'codex',  'Codex Relatio',        'mth',['pci','res'],  "Aragón's PCIAR framework: five axes — Persuasion, Consent, Intimacy, Affection, Responsibility — for detecting relational alarm patterns before visible harm occurs. A new diagnostic vocabulary.", 'Aragón, 2026'],
+ [2026,'ahuja',  'Identity work',        'des',['dsk','bet'],  "Ahuja, Pemer and Mastio: AI fragments professional identity. Workers simultaneously fear being seen as cheaters and as incompetent. Deskilling risk is relational and moral, not only cognitive.", 'Ahuja, Pemer & Mastio, 2026']
+].map(([y,id,name,t,links,desc,src])=>({y,id,name,t,links,desc,src}));
+const QUESTIONS=[
+ ['value','VALUE?','What do we value?',      'Companionship · safety · agency'],
+ ['feel', 'FEEL?', 'How do we feel?',        'Alone · anxious · curious'],
+ ['act',  'ACT?',  'How do we act?',         'Seek connection · complain · improve ourselves'],
+ ['enable','ENABLES?','What enables us to act?','Tools · language · community'],
+ ['affect','AFFECT?','Who do we affect?',    'Users · designers · society']
+].map(([id,short,q,a],i)=>({id,short,q,a,a0:i*72,a1:(i+1)*72}));
+
+const TH=Object.fromEntries(THEMES.map(t=>[t.id,t]));
+const CO=Object.fromEntries(CONCEPTS.map(c=>[c.id,c]));
+const EV=Object.fromEntries(EVENTS.map(e=>[e.id,e]));
+const QU=Object.fromEntries(QUESTIONS.map(q=>[q.id,q]));
+CONCEPTS.forEach(c=>{c.events=EVENTS.filter(e=>e.links.includes(c.id)).map(e=>e.id)});
+
+/* geometry: angle 0 = top, clockwise */
+const R={core:44,q0:50,q1:96,t0:104,t1:150,con:162,tl:305,rim:455};
+const P=(r,a)=>{const t=a*Math.PI/180;return[r*Math.sin(t),-r*Math.cos(t)]};
+const F=n=>Math.round(n*100)/100;
+const yearAngle=y=>y<=1960?4+(y-1905)*(56/55):y<=2000?60+(y-1960)*2.5:160+(y-2000)*(194/27);
+function arcPath(r,a0,a1,rev){const s=P(r,rev?a1:a0),e=P(r,rev?a0:a1),L=(a1-a0)>180?1:0;return`M${F(s[0])} ${F(s[1])}A${r} ${r} 0 ${L} ${rev?0:1} ${F(e[0])} ${F(e[1])}`}
+function ring(r0,r1,a0,a1){const L=(a1-a0)>180?1:0,p1=P(r1,a0),p2=P(r1,a1),p3=P(r0,a1),p4=P(r0,a0);
+ return`M${F(p1[0])} ${F(p1[1])}A${r1} ${r1} 0 ${L} 1 ${F(p2[0])} ${F(p2[1])}L${F(p3[0])} ${F(p3[1])}A${r0} ${r0} 0 ${L} 0 ${F(p4[0])} ${F(p4[1])}Z`}
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function radialText(parent,r,a,cls,build){const flip=a>180;const g=el('text',{class:cls,transform:`rotate(${F(flip?a+90:a-90)})`,x:flip?-r:r,y:0,'text-anchor':flip?'end':'start'},parent);build(g);return g}
+
+/* event angles with same-year spreading */
+const byYear={};EVENTS.forEach(e=>(byYear[e.y]=byYear[e.y]||[]).push(e));
+Object.values(byYear).forEach(list=>{const n=list.length,step=n>2?2.4:3.2;list.forEach((e,i)=>e.a=yearAngle(e.y)+(i-(n-1)/2)*step)});
+
+/* concept angles: evenly distributed within each theme sector */
+CONCEPTS.forEach(c=>{
+  const t=TH[c.t];
+  const peers=CONCEPTS.filter(x=>x.t===c.t);
+  const i=peers.indexOf(c);
+  const step=(t.a1-t.a0)/peers.length;
+  c.a=t.a0+(i+.5)*step;
+});
+
+const svg=document.getElementById('plate');
+const G={};['bg','links','sectors','qs','core','concepts','time','events','sats'].forEach(k=>G[k]=el('g',{},svg));
+const nodes={};const links=[];
+
+/* background rims */
+el('circle',{class:'rim dash',r:R.rim},G.bg);
+el('circle',{class:'rim',r:R.rim+14},G.bg);
+for(let a=0;a<360;a+=5){const p=P(R.rim+14,a),q=P(R.rim+(a%45===0?2:9),a);el('line',{class:'tick minor',x1:F(p[0]),y1:F(p[1]),x2:F(q[0]),y2:F(q[1])},G.bg)}
+el('circle',{class:'rim dash',r:R.con},G.bg);
+[[-500,0,-470,0],[470,0,500,0],[0,-500,0,-470],[0,470,0,500]].forEach(([x1,y1,x2,y2])=>el('line',{class:'tick',x1,y1,x2,y2},G.bg));
+
+/* links: event -> concept */
+EVENTS.forEach(e=>e.links.forEach(cid=>{const c=CO[cid];const a=P(R.tl-6,e.a),b=P(R.con+5,c.a);const k=.3,cx=(a[0]+b[0])/2*k,cy=(a[1]+b[1])/2*k;
+ const p=el('path',{class:`link t-${e.t}`,d:`M${F(a[0])} ${F(a[1])}Q${F(cx)} ${F(cy)} ${F(b[0])} ${F(b[1])}`},G.links);links.push({e:e.id,c:cid,el:p})}));
+
+/* theme sectors */
+THEMES.forEach(t=>{const g=el('g',{class:`sector node t-${t.id}`,tabindex:0,role:'button','aria-label':`Theme ${t.idx}: ${t.name}`},G.sectors);
+ el('path',{d:ring(R.t0,R.t1,t.a0+.6,t.a1-.6)},g);
+ const mid=(t.a0+t.a1)/2,bottom=mid>90&&mid<270,id='tp-'+t.id;
+ el('path',{id,d:arcPath(bottom?R.t0+27:R.t0+19,t.a0+2,t.a1-2,bottom),fill:'none',stroke:'none'},g);
+ const tx=el('text',{},g);const tp=el('textPath',{href:'#'+id,startOffset:'50%','text-anchor':'middle'},tx);tp.textContent=t.name.toUpperCase();
+ nodes['t:'+t.id]=g;bind(g,'t:'+t.id)});
+
+/* human framework ring */
+QUESTIONS.forEach(q=>{const g=el('g',{class:'q node',tabindex:0,role:'button','aria-label':q.q},G.qs);
+ el('path',{d:ring(R.q0,R.q1,q.a0+.8,q.a1-.8)},g);
+ const mid=(q.a0+q.a1)/2,bottom=mid>90&&mid<270,id='qp-'+q.id;
+ el('path',{id,d:arcPath(bottom?R.q0+27:R.q0+20,q.a0+2,q.a1-2,bottom),fill:'none',stroke:'none'},g);
+ const tx=el('text',{},g);const tp=el('textPath',{href:'#'+id,startOffset:'50%','text-anchor':'middle'},tx);tp.textContent=q.short;
+ nodes['q:'+q.id]=g;bind(g,'q:'+q.id)});
+
+/* core */
+el('circle',{class:'core',r:R.core},G.core);
+const we=el('text',{x:0,y:4,'text-anchor':'middle','font-size':30,'font-weight':200,style:'fill:var(--ink)'},G.core);we.textContent='WE';
+const we2=el('text',{x:0,y:24,'text-anchor':'middle','font-size':8,'letter-spacing':'.14em',style:'fill:var(--ink-2)'},G.core);we2.textContent='THE HUMAN';
+[[0,-R.core,0,-R.core+6],[0,R.core-6,0,R.core],[-R.core,0,-R.core+6,0],[R.core-6,0,R.core,0]].forEach(([x1,y1,x2,y2])=>el('line',{class:'tick',x1,y1,x2,y2},G.core));
+
+/* concepts */
+CONCEPTS.forEach(c=>{const g=el('g',{class:`node t-${c.t}`,tabindex:0,role:'button','aria-label':`Concept: ${c.name}`},G.concepts);
+ const p=P(R.con,c.a);el('circle',{class:'dot',cx:F(p[0]),cy:F(p[1]),r:5},g);
+ radialText(g,R.con+10,c.a,'cl halo',t=>{t.textContent=c.name});
+ nodes['c:'+c.id]=g;bind(g,'c:'+c.id)});
+
+/* time ring */
+el('circle',{class:'rim ink',r:R.tl},G.time);
+for(let d=1910;d<=2020;d+=10){const a=yearAngle(d),p=P(R.tl,a),q=P(R.tl-8,a),l=P(R.tl-20,a);
+ el('line',{class:'tick',x1:F(p[0]),y1:F(p[1]),x2:F(q[0]),y2:F(q[1])},G.time);
+ const t=el('text',{class:'dec halo',x:F(l[0]),y:F(l[1])},G.time);t.textContent=(d%50===0||d>=1960)?d:"'"+String(d).slice(2)}
+for(let y=1960;y<=2026;y++){if(y%10===0)continue;const a=yearAngle(y),p=P(R.tl,a),q=P(R.tl-3,a);el('line',{class:'tick minor',x1:F(p[0]),y1:F(p[1]),x2:F(q[0]),y2:F(q[1])},G.time)}
+{const a=yearAngle(1905),b=yearAngle(2027);[a,b].forEach(x=>{const p=P(R.tl+10,x),q=P(R.tl-10,x);el('line',{class:'tick',x1:F(p[0]),y1:F(p[1]),x2:F(q[0]),y2:F(q[1])},G.time)});
+ const n=P(R.tl+24,0);const t=el('text',{class:'dec',x:F(n[0]),y:F(n[1])},G.time);t.textContent='1905 | 2027'}
+
+/* events */
+EVENTS.forEach(e=>{const g=el('g',{class:`node t-${e.t}`,tabindex:0,role:'button','aria-label':`${e.y}: ${e.name}`},G.events);
+ const p=P(R.tl,e.a);el('circle',{class:'dot',cx:F(p[0]),cy:F(p[1]),r:4.5},g);
+ radialText(g,R.tl+11,e.a,'el halo',t=>{const flip=e.a>180;const s1=el('tspan',{class:flip?'':'y'},t),s2=el('tspan',{class:flip?'y':''},t);
+  if(flip){s1.textContent=e.name+'  ';s2.textContent=e.y}else{s1.textContent=e.y+'  ';s2.textContent=e.name}});
+ nodes['e:'+e.id]=g;bind(g,'e:'+e.id)});
+
+/* satellites: one per theme, at the midpoint angle of each sector */
+THEMES.forEach(t=>{
+ const a=(t.a0+t.a1)/2;
+ const c=P(578,a),m=P(R.rim,a),s=P(578-80,a);
+ const g=el('g',{class:`sat node t-${t.id}`,tabindex:0,role:'button','aria-label':`Theme ${t.idx}: ${t.name}`},G.sats);
+ el('line',{class:'lead',x1:F(m[0]),y1:F(m[1]),x2:F(s[0]),y2:F(s[1])},g);
+ el('circle',{class:'ring2',cx:F(c[0]),cy:F(c[1]),r:80},g);
+ el('circle',{class:'ring',cx:F(c[0]),cy:F(c[1]),r:68},g);
+ const i=el('text',{class:'idx',x:F(c[0]),y:F(c[1]-24)},g);i.textContent=t.idx;
+ t.nm.forEach((l,k)=>{const n=el('text',{class:'nm',x:F(c[0]),y:F(c[1]-4+k*11)},g);n.textContent=l});
+ t.th.forEach((l,k)=>{const n=el('text',{class:'th',x:F(c[0]),y:F(c[1]+24+k*12)},g);n.textContent=l});
+ const mk=el('g',{class:'mk'},g);el('circle',{cx:F(m[0]),cy:F(m[1]),r:11},mk);const mt=el('text',{x:F(m[0]),y:F(m[1])},mk);mt.textContent=t.idx;
+ nodes['s:'+t.id]=g;bind(g,'t:'+t.id)});
+
+/* linear strip */
+const strip=document.getElementById('strip');const X=y=>40+(y-1905)/(2027-1905)*920;
+el('line',{class:'tick',x1:40,y1:46,x2:960,y2:46},strip);
+for(let d=1910;d<=2020;d+=10){el('line',{class:'tick',x1:F(X(d)),y1:46,x2:F(X(d)),y2:52},strip);const t=el('text',{class:'dec',x:F(X(d)),y:66},strip);t.textContent=d}
+const stks={};EVENTS.forEach(e=>{const g=el('g',{class:`node t-${e.t}`,tabindex:-1},strip);const x=X(e.y)+(byYear[e.y].indexOf(e)-(byYear[e.y].length-1)/2)*2.4;
+ el('line',{class:'stk',x1:F(x),y1:30,x2:F(x),y2:46},g);el('rect',{x:F(x-4),y:20,width:8,height:32,fill:'transparent'},g);
+ const tt=el('title',{},g);tt.textContent=`${e.y} · ${e.name}`;stks[e.id]=g;g.addEventListener('click',()=>pin('e:'+e.id));
+ g.addEventListener('mouseenter',()=>hover('e:'+e.id));g.addEventListener('mouseleave',()=>hover(null))});
+const stripLabel=el('text',{class:'sl halo',x:0,y:14,'text-anchor':'middle'},strip);
+const stripNote=el('text',{class:'dec',x:960,y:86,style:'text-anchor:end'},strip);stripNote.textContent='20 of 25 events fall after 1980';
+
+/* state */
+let pinned=null,hovered=null;
+function bind(g,key){g.addEventListener('click',ev=>{ev.stopPropagation();pin(key)});
+ g.addEventListener('mouseenter',()=>hover(key));g.addEventListener('mouseleave',()=>hover(null));
+ g.addEventListener('focus',()=>hover(key));g.addEventListener('blur',()=>hover(null));
+ g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();pin(key)}})}
+function pin(key){pinned=pinned===key?null:key;render()}
+function hover(key){hovered=key;render()}
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){pinned=null;hovered=null;render()}});
+svg.addEventListener('click',()=>{if(pinned){pinned=null;render()}});
+
+function related(key){const on=new Set([key]);const lk=new Set();const [k,id]=key.split(':');
+ if(k==='t'){on.add('s:'+id);CONCEPTS.filter(c=>c.t===id).forEach(c=>{on.add('c:'+c.id);c.events.forEach(e=>{on.add('e:'+e);lk.add(e+'>'+c.id)})})}
+ if(k==='c'){const c=CO[id];on.add('t:'+c.t);on.add('s:'+c.t);c.events.forEach(e=>{on.add('e:'+e);lk.add(e+'>'+id)})}
+ if(k==='e'){const e=EV[id];e.links.forEach(cid=>{on.add('c:'+cid);on.add('t:'+CO[cid].t);on.add('s:'+CO[cid].t);lk.add(id+'>'+cid)})}
+ return{on,lk}}
+
+function render(){const key=hovered||pinned;
+ const r=key&&!key.startsWith('q:')?related(key):null;
+ for(const k in nodes){const n=nodes[k];const isOn=r?r.on.has(k):false;
+  n.classList.toggle('dim',!!r&&!isOn&&!k.startsWith('q:'));n.classList.toggle('on',isOn&&(k===key||k.startsWith('c:')||k.startsWith('e:')))}
+ if(key&&key.startsWith('q:')){for(const k in nodes){if(!k.startsWith('q:'))nodes[k].classList.add('dim')}nodes[key].classList.remove('dim')}
+ else if(!key)for(const k in nodes)nodes[k].classList.remove('dim','on');
+ links.forEach(l=>{const on=r&&r.lk.has(l.e+'>'+l.c);l.el.classList.toggle('on',!!on);l.el.classList.toggle('dim',!!key&&!on)});
+ for(const id in stks){const on=r&&r.on.has('e:'+id);stks[id].classList.toggle('dim',!!key&&!on);stks[id].querySelector('.stk').classList.toggle('on',!!on&&key==='e:'+id)}
+ if(key&&key.startsWith('e:')){const e=EV[key.slice(2)];stripLabel.textContent=`${e.y} ${e.name}`;stripLabel.setAttribute('x',F(Math.min(900,Math.max(80,X(e.y)))));stripLabel.setAttribute('class',`sl halo t-${e.t}`)}else stripLabel.textContent='';
+ document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String((c.dataset.k||null)===(pinned&&pinned.startsWith('t:')?pinned.slice(2):(pinned?'__':null)))));
+ panel(key)}
+
+const P_=document.getElementById('panel');
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const btn=(key,label)=>`<button type="button" data-go="${key}">${esc(label)}</button>`;
+function panel(key){let h='';
+ if(!key){h=`<span class="lbl">How to read the plate</span><p>Read from the centre out. Every line runs from a moment in the time ring to the concept it informs.</p>
+  <div class="read">
+   <div><span>01</span><span><b>We.</b> The human, at the centre.</span></div>
+   <div><span>02</span><span><b>Five questions</b> from the fieldwork sketch: value, feel, act, enable, affect.</span></div>
+   <div><span>03</span><span><b>Five themes</b>, each a 72° sector: ecological lens, social cognition, harm &amp; wellbeing, relational methods, design response.</span></div>
+   <div><span>04</span><span><b>Twenty concepts</b> on the dashed ring, four per theme.</span></div>
+   <div><span>05</span><span><b>The time ring</b>, 1905 to 2027, compressed before 1960.</span></div>
+  </div><p class="src">Hover to preview, click to pin, Esc to clear.</p>`}
+ else{const [k,id]=key.split(':');
+  if(k==='t'){const t=TH[id];h=`<div class="kind t-${id}"><i></i><span class="lbl">Theme ${t.idx}</span></div><p class="big" style="color:var(--${id})">${t.idx}</p><h2>${esc(t.name)}</h2><p>${esc(t.desc)}</p>
+   <div class="rel"><span class="lbl">Concepts</span><span class="links">${CONCEPTS.filter(c=>c.t===id).map(c=>btn('c:'+c.id,c.name)).join('')}</span></div>`}
+  if(k==='c'){const c=CO[id],t=TH[c.t];const evs=c.events.map(e=>EV[e]).sort((a,b)=>a.y-b.y);
+   h=`<div class="kind t-${c.t}"><i></i><span class="lbl">Concept · ${esc(t.name)}</span></div><h2>${esc(c.name)}</h2><p>${esc(c.desc)}</p>
+   <div class="rel"><span class="lbl">Fed by</span><span class="links">${evs.length?evs.map(e=>btn('e:'+e.id,e.y+' '+e.name)).join(''):'<span class="src">No dated event yet</span>'}</span>
+   <span class="lbl">Theme</span><span class="links">${btn('t:'+c.t,t.name)}</span></div>`}
+  if(k==='e'){const e=EV[id];h=`<div class="kind t-${e.t}"><i></i><span class="lbl">Event · ${esc(TH[e.t].name)}</span></div><p class="big">${e.y}</p><h2>${esc(e.name)}</h2><p>${esc(e.desc)}</p>
+   <div class="rel"><span class="lbl">Informs</span><span class="links">${e.links.map(c=>btn('c:'+c,CO[c].name)).join('')}</span></div><p class="src">Source: ${esc(e.src)}</p>`}
+  if(k==='q'){const q=QU[id];h=`<div class="kind"><i style="background:var(--ink)"></i><span class="lbl">Human framework</span></div><h2>${esc(q.q)}</h2><p>${esc(q.a)}</p>
+   <p class="src">From the fieldwork sketch: five questions design has to hold simultaneously. Each answer feeds the next.</p>`}}
+ P_.innerHTML=h;
+ P_.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{pinned=b.dataset.go;hovered=null;render()}))}
+
+/* chips */
+const chips=document.getElementById('chips');
+[[null,'All'],...THEMES.map(t=>[t.id,t.name])].forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='chip'+(k?' t-'+k:'');if(k)b.dataset.k=k;
+ b.innerHTML=(k?'<i></i>':'')+esc(l);b.addEventListener('click',()=>{pinned=k?(pinned==='t:'+k?null:'t:'+k):null;hovered=null;render()});chips.appendChild(b)});
+render();
+</script>
+
+</body></html>

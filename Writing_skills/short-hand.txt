@@ -1,0 +1,26 @@
+These are writing style and structure feedback based on issues that I often find in drafts.
+
+#ANP (adjective noun pairs/attributive noun phrase) - For efficiency, writers often use contract phrases to efficiently describe a subject, either as a adj + noun  pair (e.g., “longitudinal study”) or a noun + noun phrase where the first noun acts as adj, (e.g, “climate change”). Such phrases should be preserved for (i) well known phrases for a domain (e.g., average treatment effect), or (ii) for important phrases the authors are proposing and might recur (e.g., bidirectional alignment). When writers overuse this it feels potential and overemphasizes concepts that are not central to the paper. Moreover, syntactically, it drops verbs and actions making the line read flat.
+
+
+#FR (future/forward reference) - It is awkward to tell readers that something important will be described in a future section. Generally, it is more conventional to back reference or provide a callback to something the author has already read. The only situation where this is appropriate is when you are providing an overview of a section (typically at the beginning of paragraphs or introduction). 
+
+
+#MC (missing citations) - Add citations for what you are referring to.
+
+#NI (new information) - New information should always be described before first use.
+
+
+#NM (numbers and numerals) - Unless you are reporting on results or measurements, you should spell out numbers, so use “one” instead of “1” if saying “the user can make only one choice”.
+
+
+#TC (term consistency) - Once specified, use the same terminology for key concepts. Minimize the amount of concepts that readers need to cache while parsing your draft. It is ok to vary other words, especially verbs, in writing. 
+
+
+#UR (unclear reference) - Related to #TH and #NI. Any noun you refer to needs to be explained. Ideally, in the previous line. Here’s where the problem is e.g., “The planets are orbiting a large dying star. This difference in orbital velocity leads to variation in radio signals”. The reader does not know which “difference in orbital velocity” you are talking about. For certain, you can assume the reader would infer it’s the velocity between the planets, but it breaks narrative flow. Instead, you might say, “The planets are orbiting a large star. Their difference in size and distance from the star leads to different orbital velocity. This difference in orbital velocity…”
+
+
+#XS (complex sentence) - A sentence with too many clauses can be hard to follow. Break it into multiple sentences instead.
+
+
+

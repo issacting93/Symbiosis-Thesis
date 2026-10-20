@@ -1,0 +1,51 @@
+{
+  "collapse-filter": true,
+  "search": "",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "path:\"05 - References & Reading/Themes\"",
+      "color": {
+        "a": 1,
+        "rgb": 16744448
+      }
+    },
+    {
+      "query": "path:\"05 - References & Reading/Papers\"",
+      "color": {
+        "a": 1,
+        "rgb": 6003669
+      }
+    },
+    {
+      "query": "path:\"01 - Core Theory\"",
+      "color": {
+        "a": 1,
+        "rgb": 10233776
+      }
+    },
+    {
+      "query": "path:\"05 - References & Reading/Reference Map\"",
+      "color": {
+        "a": 1,
+        "rgb": 16756224
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": false,
+  "textFadeMultiplier": -1.1,
+  "nodeSizeMultiplier": 1,
+  "lineSizeMultiplier": 0.436081322609473,
+  "collapse-forces": false,
+  "centerStrength": 0,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 250,
+  "scale": 0.746373345558691,
+  "close": false
+}
